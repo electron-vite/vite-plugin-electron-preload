@@ -4,6 +4,7 @@ import libEsm from 'lib-esm'
 import {
   alwaysAvailableModules,
   builtins,
+  commonjsPluginAdapter,
   electronModules,
   electronRenderer,
   getNodeIntegrationEnabledGuard,
@@ -43,6 +44,8 @@ export default function preload(options: PreloadOptions = {}): Plugin {
         // @see - https://github.com/vitejs/vite/blob/v5.0.11/packages/vite/src/node/plugins/define.ts#L20
         'process.env': 'process.env',
       }
+
+      commonjsPluginAdapter(config)
     },
     load(id) {
       if (id.startsWith(prefix)) {

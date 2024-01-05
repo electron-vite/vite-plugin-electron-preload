@@ -41,30 +41,23 @@ if (typeof process.kill !== "function") {
 `
 }
 
-export function withExternalBuiltins(config: InlineConfig, modules = builtins) {
-
+export function commonjsPluginAdapter(config: InlineConfig, modules = builtins) {
   config.build ??= {}
-  config.build.rollupOptions ??= {}
-
-  let external = config.build.rollupOptions.external
-  if (
-    Array.isArray(external) ||
-    typeof external === 'string' ||
-    external instanceof RegExp
-  ) {
-    external = modules.concat(external as string[])
-  } else if (typeof external === 'function') {
-    const original = external
-    external = function (source, importer, isResolved) {
-      if (modules.includes(source)) {
-        return true
+  config.build.commonjsOptions ??= {}
+  if (config.build.commonjsOptions.ignore) {
+    if (typeof config.build.commonjsOptions.ignore === 'function') {
+      const userIgnore = config.build.commonjsOptions.ignore
+      config.build.commonjsOptions.ignore = id => {
+        if (userIgnore?.(id) === true) {
+          return true
+        }
+        return modules.includes(id)
       }
-      return original(source, importer, isResolved)
+    } else {
+      // @ts-ignore
+      config.build.commonjsOptions.ignore.push(...modules)
     }
   } else {
-    external = modules
+    config.build.commonjsOptions.ignore = modules
   }
-  config.build.rollupOptions.external = external
-
-  return config
 }
