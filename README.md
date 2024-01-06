@@ -1,6 +1,6 @@
 # vite-plugin-electron-preload
 
-To adapt to electron@28+, vite@5+
+A Vite preset adapted to Electron preload
 
 ## Install
 
@@ -17,4 +17,15 @@ import electronPreload from 'vite-plugin-electron-preload'
 export default {
   plugins: [electronPreload()],
 }
+```
+
+## How to work
+
+```ts
+import { ipcRenderer } from 'electron'
+
+// ↓↓↓↓ convert to ↓↓↓↓
+
+const electron = require('electron');
+export ipcRenderer = electron.ipcRenderer;
 ```
