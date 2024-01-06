@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-electron-preload",
-  "version": "0.1.0",
-  "description": "To adapt to electron@28+, vite@5+",
+  "version": "0.1.1",
+  "description": "A Vite preset adapted to Electron preload",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
