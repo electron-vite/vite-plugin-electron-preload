@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { builtinModules } from 'node:module'
 import type { InlineConfig } from 'vite'
 
@@ -15,7 +17,7 @@ export const builtins = [
   ...nodeModules,
 ]
 export const prefix = '\0vite-plugin-electron-preload:'
-export const electronRenderer = `
+export const electronRendererCjs = `
 const electron = require("electron");
 export { electron as default };
 export const clipboard = electron.clipboard;
@@ -35,13 +37,13 @@ export const alwaysAvailableModules = [
 
 export function getNodeIntegrationEnabledGuard(name: string) {
   return `
-if (typeof process.kill !== "function") {
-  throw new Error(\`${name} is the Node.js module, please enable "nodeIntegration: true" in the main process.\`);
+if (process.sandboxed) {
+  throw new Error(\`${name} is the Node.js module, please set "nodeIntegration: true" in the main process.\`);
 }
 `
 }
 
-export function commonjsPluginAdapter(config: InlineConfig, modules = builtins) {
+export function withCommonjsIgnoreBuiltins(config: InlineConfig, modules = builtins) {
   config.build ??= {}
   config.build.commonjsOptions ??= {}
   if (config.build.commonjsOptions.ignore) {
@@ -59,5 +61,47 @@ export function commonjsPluginAdapter(config: InlineConfig, modules = builtins) 
     }
   } else {
     config.build.commonjsOptions.ignore = modules
+  }
+
+  return config
+}
+
+export function withExternalBuiltins(config: InlineConfig, modules = builtins) {
+  config.build ??= {}
+  config.build.rollupOptions ??= {}
+
+  let external = config.build.rollupOptions.external
+  if (
+    Array.isArray(external) ||
+    typeof external === 'string' ||
+    external instanceof RegExp
+  ) {
+    external = modules.concat(external as string[])
+  } else if (typeof external === 'function') {
+    const original = external
+    external = function (source, importer, isResolved) {
+      if (modules.includes(source)) {
+        return true
+      }
+      return original(source, importer, isResolved)
+    }
+  } else {
+    external = modules
+  }
+  config.build.rollupOptions.external = external
+
+  return config
+}
+
+export async function resolvePackageJson(root = process.cwd()): Promise<{
+  type?: 'module' | 'commonjs'
+  [key: string]: any
+} | null> {
+  const packageJsonPath = path.join(root, 'package.json')
+  const packageJsonStr = await fs.promises.readFile(packageJsonPath, 'utf8')
+  try {
+    return JSON.parse(packageJsonStr)
+  } catch {
+    return null
   }
 }
