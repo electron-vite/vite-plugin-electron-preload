@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-electron-preload",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A Vite preset adapted to Electron preload",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -22,7 +22,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "lib-esm": "^0.4.1"
+    "lib-esm": "^0.4.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.6",
