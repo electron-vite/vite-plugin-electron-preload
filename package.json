@@ -22,7 +22,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "lib-esm": "^0.4.1"
+    "lib-esm": "^0.4.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.6",
