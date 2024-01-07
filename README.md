@@ -15,17 +15,30 @@ import electronPreload from 'vite-plugin-electron-preload'
 
 // vite.config.js
 export default {
-  plugins: [electronPreload()],
+  plugins: [
+    electronPreload(/* options */),
+  ],
 }
 ```
 
-## How to work
+## API <sub><sup>(Define)</sup></sub>
+
+`electronPreload(options: PreloadOptions)`
 
 ```ts
-import { ipcRenderer } from 'electron'
-
-// ↓↓↓↓ convert to ↓↓↓↓
-
-const electron = require('electron');
-export ipcRenderer = electron.ipcRenderer;
+export interface PreloadOptions {
+  /**
+   * Must be consistent with the following config.
+   * 
+   * ```js
+   * new BrowserWindow({
+   *   webPreferences: {
+   *     sandbox: boolean
+   *   }
+   * })
+   * ```
+   */
+  sandbox?: boolean
+  type?: 'commonjs' | 'module'
+}
 ```
